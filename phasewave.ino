@@ -1,4 +1,4 @@
-#define ndev 12
+#define ndev 12 // numers of devices, like LEDs
 #define nsteps 12 // number of steps in the primitive wave
 #define scale 1 // enlargement of the wave e.g if the wave is {1,0} and the scale is 2 it becomes {1,1,0,0}
 #define dt 80 // time between steps in miliseconds
@@ -13,7 +13,7 @@ int tsteps = scale * nsteps; // final number of steps
 byte wave[nsteps] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // primite wave
 byte wave2[scale * nsteps]; // final wave
 byte _step = 0; // step index
-volatile byte* port_config[] = { &PORTD, &PORTB};
+volatile byte* port_config[] = { &PORTD, &PORTB, &PORTC};
 byte portindex;
 byte cons;
 
@@ -24,7 +24,7 @@ void generatewave() { // increases the resolution of the primitive wave by the s
 }
 
 void setup() {
-  Serial.begin(9600);
+
   for (int i = 0; i < ndev; i++) {
     pinMode(_pins[i], OUTPUT);
   }
@@ -54,9 +54,13 @@ void actuate() {
       portindex = 0;
       cons = 0;
     }
-    else  {
+    else if (pin < 14) {
       portindex = 1;
       cons = 8;
+    }
+    else {
+      portindex = 2;
+      cons = 14;
     }
 
     if (0 == value) {
@@ -66,5 +70,5 @@ void actuate() {
       *port_config[portindex] = setbit(*port_config[portindex], pin - cons);
     }
   }
-  Serial.println("-------------------");
+
 }
