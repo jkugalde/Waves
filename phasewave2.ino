@@ -1,8 +1,9 @@
 #define ndev 6 // numers of devices, like LEDs
-#define nsteps 12 // number of steps in the primitive wave
+#define nsteps 6 // number of steps in the primitive wave
 #define scale 1 // enlargement of the wave e.g if the wave is {1,0} and the scale is 2 it becomes {1,1,0,0}
-#define dt 80 // time between steps in miliseconds
-#define phaseshift 1 // step difference between modules
+#define dt 200 // time between steps in miliseconds
+#define phaseshifta 1 // step difference between modules
+#define phaseshiftb 2 // step difference between modules
 
 #define clrbit(reg,bit) (reg & ~(1<<bit)) // to turn off a pin
 #define setbit(reg,bit) (reg | (1<<bit)) // to turn on a pin
@@ -11,9 +12,9 @@ byte _pinsa[ndev] = {2, 3 , 4, 5, 6, 7};
 byte _pinsb[ndev] = {8, 9, 10, 11, 12, 13};
 
 int tsteps = scale * nsteps; // final number of steps
-byte wave1a[nsteps] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // primite wave
+byte wave1a[nsteps] = {1, 0, 0, 0, 0, 0}; // primite wave
 byte wave2a[scale * nsteps]; // final wave
-byte wave1b[nsteps] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // primite wave
+byte wave1b[nsteps] = {1, 1, 0, 0, 0, 0}; // primite wave
 byte wave2b[scale * nsteps]; // final wave
 byte _step = 0; // step index
 volatile byte* port_config[] = { &PORTD, &PORTB, &PORTC};
@@ -74,8 +75,8 @@ void actuate() {
 
   for (int i = 0; i < ndev; i++) {
 
-    assign(_pinsa[i], wave1b[(_step + (phaseshift * i)) % tsteps]);
-    assign(_pinsb[i], wave2b[(_step + (phaseshift * i)) % tsteps]);
+    assign(_pinsa[i], wave1a[(_step + (phaseshifta * i)) % tsteps]);
+    assign(_pinsb[i], wave2b[(_step + (phaseshiftb * i)) % tsteps]);
 
   }
 
