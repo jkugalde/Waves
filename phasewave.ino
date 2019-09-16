@@ -7,7 +7,7 @@
 #define clrbit(reg,bit) (reg & ~(1<<bit)) // to turn off a pin
 #define setbit(reg,bit) (reg | (1<<bit)) // to turn on a pin
 
-byte _pins[ndev] = {2, 3 , 4, 5, 6, 7, 8, 9, 10, 11, 12, 13};
+byte _pins[ndev] = {2, 3 , 4, 5, 6, 7, 13, 12, 11, 10, 9, 8};
 
 int tsteps = scale * nsteps; // final number of steps
 byte wave[nsteps] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // primite wave
@@ -20,6 +20,27 @@ byte cons;
 void generatewave() { // increases the resolution of the primitive wave by the scale factor
   for (int i = 0; i < tsteps; i++) {
     wave2[i] = wave[int(i / scale)];
+  }
+}
+void assign(byte pin, byte value) {
+  if (pin < 8) {
+    portindex = 0;
+    cons = 0;
+  }
+  else if (pin < 14) {
+    portindex = 1;
+    cons = 8;
+  }
+  else {
+    portindex = 2;
+    cons = 14;
+  }
+
+  if (0 == value) {
+    *port_config[portindex] = clrbit(*port_config[portindex], pin - cons);
+  }
+  else {
+    *port_config[portindex] = setbit(*port_config[portindex], pin - cons);
   }
 }
 
@@ -46,29 +67,7 @@ void loop() {
 void actuate() {
 
   for (int i = 0; i < ndev; i++) {
-
-    int value = wave[(_step + (phaseshift * i)) % tsteps];
-    int pin = _pins[i];
-
-    if (pin < 8) {
-      portindex = 0;
-      cons = 0;
-    }
-    else if (pin < 14) {
-      portindex = 1;
-      cons = 8;
-    }
-    else {
-      portindex = 2;
-      cons = 14;
-    }
-
-    if (0 == value) {
-      *port_config[portindex] = clrbit(*port_config[portindex], pin - cons);
-    }
-    else {
-      *port_config[portindex] = setbit(*port_config[portindex], pin - cons);
-    }
+    assign(_pins[i], wave[(_step + (phaseshift * i)) % tsteps]);
   }
 
 }
